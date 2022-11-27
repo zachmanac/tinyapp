@@ -8,7 +8,10 @@ const generateRandomString = function () {
 
 app.set("view engine", "ejs");
 
-const urlDatabase = {};
+const urlDatabase = {
+  'b2xVn2': {shortURL: 'b2xVn2', longURL: 'http://www.lighthouselabs.ca'},
+  '9sm5xK': {shortURL: '9sm5xK', longURL: 'http://www.google.com'}
+};
 
 app.use(express.urlencoded({ extended: true }));
 
