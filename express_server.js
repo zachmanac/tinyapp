@@ -17,6 +17,10 @@ const urlDatabase = {
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+app.get("/", (req, res) => {
+  res.redirect("/urls");
+});
+
 app.get("/urls", (req, res) => {
   const templateVars = {
     username: req.cookies["username"],
@@ -42,14 +46,14 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-app.post("/login", (req, res) => {
-  res.cookie('username', req.body.username);
-  res.redirect("/urls");
+app.get("/u/:id", (req, res) => {
+  const longURL = urlDatabase[req.params.id].longURL;
+  res.redirect(longURL);
 });
 
-app.post("/logout", (req, res) => {
-  res.clearCookie('username', req.body.username);
-  res.redirect("/urls");
+app.get("/register", (req, res) => {
+
+  res.render("register")
 });
 
 app.post("/urls", (req, res) => {
@@ -62,16 +66,6 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${newURLID}`);
 });
 
-app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id].longURL;
-  res.redirect(longURL);
-});
-
-app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id];
-  res.redirect("/urls");
-});
-
 app.post("/urls/:id", (req, res) => {
   const shortURL = req.params.id;
   const longURL = req.body.longURL;
@@ -80,7 +74,22 @@ app.post("/urls/:id", (req, res) => {
     longURL
   };
   urlDatabase[shortURL] = changedURL;
-  res.redirect("/urls/");
+  res.redirect("/urls");
+});
+
+app.post("/urls/:id/delete", (req, res) => {
+  delete urlDatabase[req.params.id];
+  res.redirect("/urls");
+});
+
+app.post("/login", (req, res) => {
+  res.cookie('username', req.body.username);
+  res.redirect("/urls");
+});
+
+app.post("/logout", (req, res) => {
+  res.clearCookie('username', req.body.username);
+  res.redirect("/urls");
 });
 
 app.listen(PORT, () => {
