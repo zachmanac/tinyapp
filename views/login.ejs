@@ -4,21 +4,21 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  
+
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
     integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous" />
-  <title>Registration Page</title>
+  <title>Login Page</title>
 </head>
 
 <body>
   <%- include('partials/_header') %>
   <div class="card text-center">
-    <h2>Create Account</h2>
-    <form method="POST" action="/register">
+    <h2>Login to Your Account</h2>
+    <form method="POST" action="/login">
       <input type="email" name="email" placeholder="email address">
       <input type="password" name="password" placeholder="password">
-      <button type="submit">Register</button>
+      <button type="submit">Login</button>
     </form>
   </div>
   <!-- Bootstrap JS -->
@@ -32,4 +32,5 @@
   integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
   crossorigin="anonymous"></script>
 </body>
+
 </html>
