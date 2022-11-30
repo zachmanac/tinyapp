@@ -32,9 +32,9 @@ const getUserByEmailfunction = function(object) {
   const emails = [];
   for (const key of keys) {
     emails.push(object[key].email);
-  };
+  }
   return emails;
-}
+};
 
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -90,7 +90,7 @@ app.get("/login", (req, res) => {
     user: users[userID],
   };
   res.render("login", templateVars);
-})
+});
 
 app.post("/urls", (req, res) => {
   const newURLID = generateRandomString();
@@ -119,27 +119,24 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  const emails = getUserByEmailfunction(users);
   const emailEntered = req.body.email;
   const passwordEntered = req.body.password;
-  if(!emailEntered || !passwordEntered) {
+  if (!emailEntered || !passwordEntered) {
     return res.status(400).send('Both fields must be filled in to login.');
-  };
-  
+  }
   let foundUser = null;
   for (const userID in users) {
     const user = users[userID];
     if (user.email === emailEntered) {
       foundUser = user;
-    };
-  };
-  if(!foundUser) {
+    }
+  }
+  if (!foundUser) {
     return res.status(403).send(`Account with ${emailEntered} not found.`);
-  };
-  if(foundUser.password !== passwordEntered) {
+  }
+  if (foundUser.password !== passwordEntered) {
     return res.status(403).send("Password entered is incorrect.");
-  };
-  
+  }
   res.cookie('user_id', foundUser.id);
   res.redirect("/urls");
 });
@@ -160,11 +157,11 @@ app.post("/register", (req, res) => {
   for (const email of emails) {
     if (newUser.email === email) {
       return res.status(400).send(`Account with ${email} already registered.`);
-    };
-  };
-  if(newUser.email === "" || newUser.password === ""){
+    }
+  }
+  if (newUser.email === "" || newUser.password === "") {
     return res.status(400).send("Both fields must be filled in to register.");
-  };
+  }
   users[newUserID] = newUser;
   res.cookie('user_id', newUserID);
   res.redirect("/urls");
