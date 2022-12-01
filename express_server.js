@@ -54,6 +54,9 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const userID = req.cookies["user_id"];
+  if(!userID) {
+    return res.redirect("/login");
+  }
   const templateVars = {
     user: users[userID],
   };
@@ -99,6 +102,9 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
+  if(!req.cookies["user_id"]) {
+    return res.status(400).send("Cannot shorten URLS without being logged in.\n");
+  }
   const newURLID = generateRandomString();
   const newURL = {
     shortURL: newURLID,
