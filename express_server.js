@@ -103,7 +103,7 @@ app.get("/login", (req, res) => {
 
 app.post("/urls", (req, res) => {
   if(!req.cookies["user_id"]) {
-    return res.status(400).send("Cannot shorten URLS without being logged in.\n");
+    return res.status(401).send("Cannot shorten URLS without being logged in.\n");
   }
   const newURLID = generateRandomString();
   const newURL = {
