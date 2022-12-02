@@ -15,12 +15,10 @@ app.set("view engine", "ejs");
 
 const urlDatabase = {
   'b2xVn2': {
-    // shortURL: 'b2xVn2',
     userID: 'userRandomID',
     longURL: 'http://www.lighthouselabs.ca'
   },
   '9sm5xK': {
-    // shortURL: '9sm5xK',
     userID: 'user2RandomID',
     longURL: 'http://www.google.com'
   }
@@ -38,24 +36,6 @@ const users = {
     password: bcryptjs.hashSync("dishwasher-funk", salt),
   },
 };
-
-// const getUserByEmail = function(users, email) {
-//   for (let userID in users) {
-//     if (email === users[userID].email) {
-//       return users[userID];
-//     }
-//   }
-// };
-
-// const urlsForUser = function(id, urlDatabase) {
-//   const urls = {};
-//   for (let url in urlDatabase) {
-//     if (id === urlDatabase[url].userID) {
-//       urls[url] = urlDatabase[url];
-//     }
-//   }
-//   return urls;
-// };
 
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieSession({
@@ -81,7 +61,7 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const userID = req.session.user_id;
-  if(!userID) {
+  if (!userID) {
     return res.redirect("/login");
   }
   const templateVars = {
@@ -94,10 +74,10 @@ app.get("/urls/:id", (req, res) => {
   const userID = req.session.user_id;
   const shortURL = req.params.id;
   const userURLS = urlsForUser(userID, urlDatabase);
-  if(!userID) {
+  if (!userID) {
     return res.status(401).send(`Please register and/or login to view page.\n`);
   }
-  if(!urlDatabase[req.params.id]) {
+  if (!urlDatabase[req.params.id]) {
     return res.status(404).send(`Short URL for ${req.params.id} does not exist\n`);
   }
   if (!userURLS[shortURL]) {
@@ -106,7 +86,6 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = {
     user: users[userID],
     id: req.params.id,
-    // shortURL: req.params.id,
     longURL: urlDatabase[req.params.id].longURL
   };
   res.render("urls_show", templateVars);
@@ -143,7 +122,7 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  if(!req.session.user_id) {
+  if (!req.session.user_id) {
     return res.status(401).send("Cannot shorten URLS without being logged in.\n");
   }
   const newURLID = generateRandomString();
@@ -159,18 +138,17 @@ app.post("/urls/:id", (req, res) => {
   const userID = req.session.user_id;
   const shortURL = req.params.id;
   const userURLS = urlsForUser(userID, urlDatabase);
-  if(!urlDatabase[req.params.id]) {
+  if (!urlDatabase[req.params.id]) {
     return res.status(404).send(`Short URL for ${req.params.id} does not exist\n`);
   }
   if (!userURLS[shortURL]) {
     return res.status(401).send(`You do not own this URL.\n`);
   }
-  if(!userID) {
+  if (!userID) {
     return res.status(401).send(`Please register and/or login to view page.\n`);
   }
   const longURL = req.body.longURL;
   const changedURL = {
-    // shortURL,
     longURL
   };
   urlDatabase[shortURL].longURL = changedURL.longURL;
@@ -181,13 +159,13 @@ app.post("/urls/:id/delete", (req, res) => {
   const userID = req.session.user_id;
   const shortURL = req.params.id;
   const userURLS = urlsForUser(userID, urlDatabase);
-  if(!urlDatabase[req.params.id]) {
+  if (!urlDatabase[req.params.id]) {
     return res.status(404).send(`Short URL for ${req.params.id} does not exist\n`);
   }
   if (!userURLS[shortURL]) {
     return res.status(401).send(`You do not own this URL.\n`);
   }
-  if(!userID) {
+  if (!userID) {
     return res.status(401).send(`Please register and/or login to view page.\n`);
   }
   delete urlDatabase[req.params.id];
@@ -201,9 +179,6 @@ app.post("/login", (req, res) => {
     return res.status(400).send('Both fields must be filled in to login.');
   }
   const user = getUserByEmail(users, req.body.email);
-  console.log("passwordentered", passwordEntered);
-  console.log("user.password", user.password);
-  console.log("bcryptjs", bcryptjs.compareSync(passwordEntered, user.password))
   if (!user) {
     return res.status(403).send(`Account with ${emailEntered} not found.`);
   }
