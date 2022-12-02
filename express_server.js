@@ -1,6 +1,5 @@
-const helpers = require("./helpers");
+const { getUserByEmail, urlsForUser } = require("./helpers");
 const express = require("express");
-// const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
 const app = express();
 const PORT = 8080; // default port 8080
@@ -75,7 +74,7 @@ app.get("/urls", (req, res) => {
   }
   const templateVars = {
     user: users[userID],
-    urls: helpers.urlsForUser(userID, urlDatabase)
+    urls: urlsForUser(userID, urlDatabase)
   };
   res.render("urls_index", templateVars);
 });
@@ -94,7 +93,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const userID = req.session.user_id;
   const shortURL = req.params.id;
-  const userURLS = helpers.urlsForUser(userID, urlDatabase);
+  const userURLS = urlsForUser(userID, urlDatabase);
   if(!userID) {
     return res.status(401).send(`Please register and/or login to view page.\n`);
   }
@@ -159,7 +158,7 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   const userID = req.session.user_id;
   const shortURL = req.params.id;
-  const userURLS = helpers.urlsForUser(userID, urlDatabase);
+  const userURLS = urlsForUser(userID, urlDatabase);
   if(!urlDatabase[req.params.id]) {
     return res.status(404).send(`Short URL for ${req.params.id} does not exist\n`);
   }
@@ -181,7 +180,7 @@ app.post("/urls/:id", (req, res) => {
 app.post("/urls/:id/delete", (req, res) => {
   const userID = req.session.user_id;
   const shortURL = req.params.id;
-  const userURLS = helpers.urlsForUser(userID, urlDatabase);
+  const userURLS = urlsForUser(userID, urlDatabase);
   if(!urlDatabase[req.params.id]) {
     return res.status(404).send(`Short URL for ${req.params.id} does not exist\n`);
   }
@@ -201,7 +200,7 @@ app.post("/login", (req, res) => {
   if (!emailEntered || !passwordEntered) {
     return res.status(400).send('Both fields must be filled in to login.');
   }
-  const user = helpers.getUserByEmail(users, req.body.email);
+  const user = getUserByEmail(users, req.body.email);
   console.log("passwordentered", passwordEntered);
   console.log("user.password", user.password);
   console.log("bcryptjs", bcryptjs.compareSync(passwordEntered, user.password))
@@ -227,7 +226,7 @@ app.post("/register", (req, res) => {
     email: req.body.email,
     password: bcryptjs.hashSync(req.body.password, salt)
   };
-  if (helpers.getUserByEmail(users, req.body.email) !== undefined) {
+  if (getUserByEmail(users, req.body.email) !== undefined) {
     return res.status(400).send(`Account with ${newUser.email} already registered.`);
   }
   if (!newUser.email || !newUser.password) {
