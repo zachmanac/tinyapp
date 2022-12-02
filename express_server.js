@@ -1,3 +1,4 @@
+const helpers = require("./helpers");
 const express = require("express");
 // const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
@@ -30,32 +31,32 @@ const users = {
   userRandomID: {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur",
+    password: bcryptjs.hashSync("purple-monkey-dinosaur", salt),
   },
   user2RandomID: {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk",
+    password: bcryptjs.hashSync("dishwasher-funk", salt),
   },
 };
 
-const getUserByEmail = function(users, email) {
-  for (let userID in users) {
-    if (email === users[userID].email) {
-      return users[userID];
-    }
-  }
-};
+// const getUserByEmail = function(users, email) {
+//   for (let userID in users) {
+//     if (email === users[userID].email) {
+//       return users[userID];
+//     }
+//   }
+// };
 
-const urlsForUser = function(id, urlDatabase) {
-  const urls = {};
-  for (let url in urlDatabase) {
-    if (id === urlDatabase[url].userID) {
-      urls[url] = urlDatabase[url];
-    }
-  }
-  return urls;
-};
+// const urlsForUser = function(id, urlDatabase) {
+//   const urls = {};
+//   for (let url in urlDatabase) {
+//     if (id === urlDatabase[url].userID) {
+//       urls[url] = urlDatabase[url];
+//     }
+//   }
+//   return urls;
+// };
 
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieSession({
@@ -74,7 +75,7 @@ app.get("/urls", (req, res) => {
   }
   const templateVars = {
     user: users[userID],
-    urls: urlsForUser(userID, urlDatabase)
+    urls: helpers.urlsForUser(userID, urlDatabase)
   };
   res.render("urls_index", templateVars);
 });
@@ -93,7 +94,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const userID = req.session.user_id;
   const shortURL = req.params.id;
-  const userURLS = urlsForUser(userID, urlDatabase);
+  const userURLS = helpers.urlsForUser(userID, urlDatabase);
   if(!userID) {
     return res.status(401).send(`Please register and/or login to view page.\n`);
   }
@@ -158,7 +159,7 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   const userID = req.session.user_id;
   const shortURL = req.params.id;
-  const userURLS = urlsForUser(userID, urlDatabase);
+  const userURLS = helpers.urlsForUser(userID, urlDatabase);
   if(!urlDatabase[req.params.id]) {
     return res.status(404).send(`Short URL for ${req.params.id} does not exist\n`);
   }
@@ -180,7 +181,7 @@ app.post("/urls/:id", (req, res) => {
 app.post("/urls/:id/delete", (req, res) => {
   const userID = req.session.user_id;
   const shortURL = req.params.id;
-  const userURLS = urlsForUser(userID, urlDatabase);
+  const userURLS = helpers.urlsForUser(userID, urlDatabase);
   if(!urlDatabase[req.params.id]) {
     return res.status(404).send(`Short URL for ${req.params.id} does not exist\n`);
   }
@@ -200,7 +201,10 @@ app.post("/login", (req, res) => {
   if (!emailEntered || !passwordEntered) {
     return res.status(400).send('Both fields must be filled in to login.');
   }
-  const user = getUserByEmail(users, req.body.email);
+  const user = helpers.getUserByEmail(users, req.body.email);
+  console.log("passwordentered", passwordEntered);
+  console.log("user.password", user.password);
+  console.log("bcryptjs", bcryptjs.compareSync(passwordEntered, user.password))
   if (!user) {
     return res.status(403).send(`Account with ${emailEntered} not found.`);
   }
@@ -223,7 +227,7 @@ app.post("/register", (req, res) => {
     email: req.body.email,
     password: bcryptjs.hashSync(req.body.password, salt)
   };
-  if (getUserByEmail(users, req.body.email) !== undefined) {
+  if (helpers.getUserByEmail(users, req.body.email) !== undefined) {
     return res.status(400).send(`Account with ${newUser.email} already registered.`);
   }
   if (!newUser.email || !newUser.password) {
