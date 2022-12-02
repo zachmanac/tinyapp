@@ -2,6 +2,8 @@ const express = require("express");
 const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = 8080; // default port 8080
+const bcryptjs = require("bcryptjs");
+const salt = bcryptjs.genSaltSync(10);
 
 const generateRandomString = function() {
   return Math.random().toString(36).slice(2, 8);
@@ -193,11 +195,12 @@ app.post("/login", (req, res) => {
   if (!emailEntered || !passwordEntered) {
     return res.status(400).send('Both fields must be filled in to login.');
   }
-  const user = getUserByEmail(users, req.body.email)
+  const user = getUserByEmail(users, req.body.email);
+  console.log("userpassword", user.password)
   if (!user) {
     return res.status(403).send(`Account with ${emailEntered} not found.`);
   }
-  if (user.password !== passwordEntered) {
+  if (!bcryptjs.compareSync(passwordEntered, user.password)) {
     return res.status(403).send("Password entered is incorrect.");
   }
   res.cookie('user_id', user.id);
@@ -214,7 +217,7 @@ app.post("/register", (req, res) => {
   const newUser = {
     id: newUserID,
     email: req.body.email,
-    password: req.body.password
+    password: bcryptjs.hashSync(req.body.password, salt)
   };
   if (getUserByEmail(users, req.body.email) !== undefined) {
     return res.status(400).send(`Account with ${newUser.email} already registered.`);
